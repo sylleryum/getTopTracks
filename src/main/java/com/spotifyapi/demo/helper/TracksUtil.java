@@ -20,5 +20,6 @@ public interface TracksUtil {
     //List<String> getTopPopularityAlbum(List<TrackPopularity> listTopAlbumTracks, int amountTracks);
     Map<Integer, List<String>> clearTopPopularityAlbum(List<TrackPopularity> listTopAlbumTracks, int amountTracks);
     Map<Integer, List<String>> clearTopPopularityArtist(List<TopArtistTracks> listTopArtistTracks, int amountTracks);
+    Map<Integer, List<String>> clearTopPopularityArtist(List<TopArtistTracks> listTopArtistTracks, List<String> listAlbumAdded, int amountTracks);
     String albumTracksItemToString(List<AlbumTracksItem> listTracks);
 }

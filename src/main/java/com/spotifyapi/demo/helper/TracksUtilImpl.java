@@ -8,10 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -147,12 +144,34 @@ public class TracksUtilImpl implements TracksUtil {
      * @return clear list with number of tracks wanted as a List of String, ready to be added
      */
     @Override
-
     public Map<Integer, List<String>> clearTopPopularityArtist(List<TopArtistTracks> listTopArtistTracks, int amountTracks){
 
         List<String> topArtistTracksUri = listTopArtistTracks.stream().map(i->i.getUri()).limit(amountTracks).collect(Collectors.toList());
         List<String> topArtistTracksName = listTopArtistTracks.stream().map(i->i.getArtists().get(0).getName()+" - "+i.getName()).limit(amountTracks).collect(Collectors.toList());
 
+        Map<Integer, List<String>> mapReturn = new HashMap<>();
+        mapReturn.put(0, topArtistTracksUri);
+        mapReturn.put(1, topArtistTracksName);
+
+        return mapReturn;
+    }
+
+    /**
+     * perform the same as clearTopPopularityArtist and check for tracks duplicated from albums
+     * @param listTopArtistTracks
+     * @param amountTracks
+     * @return clear list with number of tracks wanted as a List of String, ready to be added
+     */
+    @Override
+    public Map<Integer, List<String>> clearTopPopularityArtist(List<TopArtistTracks> listTopArtistTracks, List<String> listAlbumAdded, int amountTracks) {
+
+        List<TopArtistTracks> test = new ArrayList<>(listTopArtistTracks);
+        List<TopArtistTracks> checkDuplicate = listTopArtistTracks.stream().limit(amountTracks).filter(i->!listAlbumAdded.stream().anyMatch(in->in.equalsIgnoreCase(i.getUri()))).collect(Collectors.toList());
+
+
+        List<String> topArtistTracksUri = checkDuplicate.stream().map(i->i.getUri()).collect(Collectors.toList());
+        List<String> topArtistTracksName = checkDuplicate.stream().map(i->i.getArtists().get(0).getName()+" - "+i.getName()).collect(Collectors.toList());
+        System.out.println();
         Map<Integer, List<String>> mapReturn = new HashMap<>();
         mapReturn.put(0, topArtistTracksUri);
         mapReturn.put(1, topArtistTracksName);

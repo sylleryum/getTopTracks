@@ -93,7 +93,7 @@ public class TheController {
             System.out.println("no songs");
             return "home";
         }
-        //TODO hover effect on homepage get started button
+        //TODO check for duplicates
 
         List<String> artistsToFind;
         List<String> albumsToFind;

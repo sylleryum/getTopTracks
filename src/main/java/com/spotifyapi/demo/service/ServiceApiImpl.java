@@ -381,7 +381,7 @@ public class ServiceApiImpl implements ServiceApi {
         }
 
         Map<Integer, Map<Boolean, List<String>>> mapReturn = new HashMap<>();
-
+        List<String> listToAddAlbum = new ArrayList<>();
 
         if (albums != null) {
             Map<Boolean, List<String>> mapInternalAlbum = new HashMap<>();
@@ -400,7 +400,7 @@ public class ServiceApiImpl implements ServiceApi {
             //sort popularity of the ids (from album) and set amount
             List<Map<Integer, List<String>>> listAlbumPopularitySorted = listPopularity.stream().map(i -> tracksUtil.clearTopPopularityAlbum(i, amountTracks)).collect(Collectors.toList());
             //joining cleared
-            List<String> listToAddAlbum = listAlbumPopularitySorted.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
+            listToAddAlbum = listAlbumPopularitySorted.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
 
             if (addTracks(new Uri(listToAddAlbum), playlistID)) {
                 mapInternalAlbum.put(true, listAlbumPopularitySorted.stream().flatMap(i->i.get(1).stream()).collect(Collectors.toList()));
@@ -424,7 +424,8 @@ public class ServiceApiImpl implements ServiceApi {
             //get top tracks
             Map<Boolean, List<List<TopArtistTracks>>> mapTopArtistTracks = mapSearchArtist.get(true).stream().map(e -> getArtistTopTracks(e.getId())).collect(Collectors.partitioningBy(it -> it.get(0).getUri() != null));
             //get uris and number of tracks selected
-            List<Map<Integer, List<String>>> listClearedArtistTopTracks = mapTopArtistTracks.get(true).stream().map(e -> tracksUtil.clearTopPopularityArtist(e,amountTracks)).collect(Collectors.toList());
+            List<String> finalListToAddAlbum = listToAddAlbum;
+            List<Map<Integer, List<String>>> listClearedArtistTopTracks = mapTopArtistTracks.get(true).stream().map(e -> tracksUtil.clearTopPopularityArtist(e, finalListToAddAlbum, amountTracks)).collect(Collectors.toList());
             //joining cleared
             List<String> listToAddArtist = listClearedArtistTopTracks.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
 

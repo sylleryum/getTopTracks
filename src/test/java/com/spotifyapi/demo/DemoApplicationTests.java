@@ -47,13 +47,22 @@ public class DemoApplicationTests {
     @Autowired
     ServiceApi serviceApi;
 
-    String accessToken ="BQBJ-hU3PkR__3ETT615qZF-l8r5RZ-r6z15RU7y3NM2v67VZl1ODGmtjmQHz5ePPa8dvbpILWSFCCXXDQhL7kkxRXluMMW-9JtnJM0flbkcCTyY1T6bw6yzGTj1OUrMXRyKbp7Mpd7LFGMsC8J0Ou9W4o7mVgvXoRoBumqJYmPqBDXWCVbVKmLqMnutXGT0HbqogOaUSR0kUS2aPMO8WzaZY2w21DqBo4-ClSyVcOOw2qQRCJ_hyOH4nEoDoD3JjoYYKSifGg750GLUzw";
+    String accessToken ="BQB6Gz_FYABRw9pFpky9AQD0LlMiw0L6Tv8tie8ZnWQXeFtyVzcxRbdK__vt4MUsPj58CxhmuBQoP3QbB4hdpfYTh603JHnPxtbbiZDz9vUcv9B5kKb1fgdECCCLq7Ome6tlSYUgEo2vVZqnDJCCek9UKUepgfQ_aiDOj1DP3qrByBFpPiSqhSkCVrmSyZAGrE5Q2S5GamToz3FpKPR2x7H92rD7QIaqPVCLVTySk4Je4mzRnpqnnOZgnl3cqJRv7oupmATS07Q65Eaafg";
     AccessToken accesstoken = new AccessToken(accessToken,
             3600000 + System.currentTimeMillis());
 
     @Test
     public void testSubmitArtist(){
         serviceApi.test(accesstoken);
+
+        //0 2 11
+        List<String> testDuplicates = Arrays.asList("spotify:track:54qzcTSGvggVEa1pywUKdKç", "spotify:track:56UVGnWlFTCKOELqxVKwtQ", "spotify:track:1NifPbQ0M0K0zOsa2dNPHm");
+
+        List<String> theList = Arrays.asList("spotify:track:54qzcTSGvggVEa1pywUKdK", "spotify:track:2ovwJqPsH7TuD5R1upfwEo", "spotify:track:6b2oQwSGFkzsMtQruIWm2p", "spotify:track:078BAiMFxiuQzUQrpwLcKz", "spotify:track:27rgTetikreqkvedaxrF5N");
+        List<String> test = Arrays.asList("spotify:track:6b2oQwSGFkzsMtQruIWm2p", "oi2", "spotify:track:2ovwJqPsH7TuD5R1upfwEo", "oi4");
+        List<String> result = theList.stream().filter(i->!test.stream().anyMatch(in->in.equalsIgnoreCase(i))).collect(Collectors.toList());
+
+        System.out.println();
 
         List<String> listArtist = Arrays.asList("art zoyd", "radiohead", "demians", "huihiaehwwwoj", "elbow");
         //======artist top
@@ -71,6 +80,9 @@ public class DemoApplicationTests {
         //joining cleared
         List<String> listToAdd = listClearedArtistTopTracks.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
         System.out.println();
+
+        List<Map<Integer, List<String>>> testDuplicatesResult = mapTopArtistTracks.get(true).stream().map(e -> tracksUtil.clearTopPopularityArtist(e, testDuplicates,3)).collect(Collectors.toList());
+
         Boolean bResult = serviceApi.addTracks(new Uri(listToAdd), "6CRh3WU4Ygi2S2HPfLm8iP");
         System.out.println("added successfully");
 
@@ -100,6 +112,7 @@ public class DemoApplicationTests {
         List<Map<Integer, List<String>>> mapListAlbumPopularitySorted = listPopularity.stream().map(i->tracksUtil.clearTopPopularityAlbum(i, 3)).collect(Collectors.toList());
         //joining cleared
         List<String> listToAddAlbum = mapListAlbumPopularitySorted.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
+
         Boolean bResult = serviceApi.addTracks(new Uri(listToAddAlbum), "6CRh3WU4Ygi2S2HPfLm8iP");
         System.out.println("added successfully");
     }
