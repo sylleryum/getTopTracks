@@ -148,14 +148,14 @@
 
                 <div class="row results-menu">
                     <div class="success col-md-6 p-0">
-                        <c:if test="${failedSuccessAlbums.get(true).size() >0}">
+                        <c:if test="${failedSuccessAlbums.size() >0}">
                             <h4 class="font-weight-bold">Album songs added(${failedSuccessAlbums.get(true).size()}):</h4>
                             <c:forEach var="success" items="${failedSuccessAlbums.get(true)}">
                                 <p>${success}</p>
                             </c:forEach>
                         </c:if>
 
-                        <c:if test="${failedSuccessArtists.get(true).size() >0}">
+                        <c:if test="${failedSuccessArtists.size() >0}">
                             <h4 class="font-weight-bold">Artists' songs added(${failedSuccessArtists.get(true).size()}):</h4>
                             <c:forEach var="success" items="${failedSuccessArtists.get(true)}">
                                 <p>${success}</p>
@@ -163,14 +163,14 @@
                         </c:if>
                     </div>
                     <div class="failure col-md-6 p-0">
-                        <c:if test="${failedSuccessAlbums.get(true).size() >0}">
+                        <c:if test="${failedSuccessAlbums.size() >0}">
                             <h4 class="font-weight-bold">Albums not found (${failedSuccessAlbums.get(false).size()}):</h4>
                             <c:forEach var="fail" items="${failedSuccessAlbums.get(false)}">
                                 <p>${fail}</p>
                             </c:forEach>
                         </c:if>
 
-                        <c:if test="${failedSuccessArtists.get(true).size() >0}">
+                        <c:if test="${failedSuccessArtists.size() >0}">
                             <h4 class="font-weight-bold">Artists not found (${failedSuccessArtists.get(false).size()}):</h4>
                             <c:forEach var="fail" items="${failedSuccessArtists.get(false)}">
                                 <p>${fail}</p>
@@ -186,8 +186,8 @@
     </div>
 </form>
 <footer class="text-center m-0 p-0 bg-4 text-1 footer-clear">
-    <h6 class="p-0 m-0 text-w">Find more information and source code at: <a href="https://github.com/sylleryum/">
-        https://github.com/sylleryum/</a></h6>
+    <h6 class="p-0 m-0 text-w">Find more information and source code at: <a href="https://github.com/sylleryum/getTopTracks">
+        https://github.com/sylleryum/getTopTracks</a></h6>
 
 </footer>
 

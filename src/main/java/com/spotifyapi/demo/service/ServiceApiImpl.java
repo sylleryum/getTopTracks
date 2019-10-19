@@ -72,7 +72,7 @@ public class ServiceApiImpl implements ServiceApi {
 
         bodyParameters.add("grant_type", "authorization_code");
         bodyParameters.add("code", theCode);
-        bodyParameters.add("redirect_uri", "http://localhost:8080/callback");
+        bodyParameters.add("redirect_uri", REDIRECT_URL);
         requestEntity = new HttpEntity<>(bodyParameters, headers);
 
 
@@ -198,7 +198,9 @@ public class ServiceApiImpl implements ServiceApi {
             theString = tracksUtil.addPlus(theString);
         } else {
             apiSearchType = "album";
-            theString = tracksUtil.clearSpecialChar(paramToFind).replace(" ", "+");
+            String toSearch = getClearSongName(theString);
+            theString = tracksUtil.addPlus(toSearch);
+
         }
 
         /////////////trying to get details of the eventual nullpointer exception
@@ -470,7 +472,8 @@ public class ServiceApiImpl implements ServiceApi {
                     entity,
                     Youtube.class);
             try {
-                return tracksUtil.clearYoutubeChar(response.getBody().getItems().get(0).getSnippet().getTitle());
+                String name = tracksUtil.clearYoutubeChar(response.getBody().getItems().get(0).getSnippet().getTitle());
+                return tracksUtil.clearSpecialChar(name);
             } catch (RestClientResponseException e) {
                 //System.out.println(e.getMessage());
                 System.out.println("Fail to get youtube song - " + e.getResponseBodyAsString() + " " + url);

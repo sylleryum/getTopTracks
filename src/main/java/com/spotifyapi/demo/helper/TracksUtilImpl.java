@@ -34,7 +34,7 @@ public class TracksUtilImpl implements TracksUtil {
         //youtubePattern = Pattern.compile("[^a-z0-9 ]|\\blyrics|hd|hq|lyric video|with lyrics|w/|video|official music\\b", Pattern.CASE_INSENSITIVE);
 
         specialPattern = Pattern.compile("[\\u201C\\u201D\\u201E\\u201F\\u2033\\u2036\"!@#$%¨*&()_\\-+={\\[}\\]º|\\\\,.:;?°]", Pattern.CASE_INSENSITIVE);
-        youtubePattern = Pattern.compile("[\\u201C\\u201D\\u201E\\u201F\\u2033\\u2036\"!@#$%¨*&()_\\-+={\\[}\\]º|\\\\,.:;?°]|\\blyrics|hd|hq|lyric video|with lyrics|w/|video|official|official music\\b", Pattern.CASE_INSENSITIVE);
+        youtubePattern = Pattern.compile("[\\u201C\\u201D\\u201E\\u201F\\u2033\\u2036\"!@#$%¨*&()_\\-+={\\[}\\]º|\\\\,.:;?°]|\\blyrics|hd|hq|lyric video|with lyrics|w/|video|official|full album|official music\\b", Pattern.CASE_INSENSITIVE);
 
 
     }
