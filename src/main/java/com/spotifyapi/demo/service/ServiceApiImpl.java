@@ -22,6 +22,10 @@ import com.spotifyapi.demo.helper.LoggingRequestInterceptor;
 import com.spotifyapi.demo.helper.TracksUtil;
 import com.spotifyapi.demo.helper.YoutubeUtil;
 import com.spotifyapi.demo.entity.user.User;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.http.*;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -33,8 +37,10 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ServiceApiImpl implements ServiceApi {
@@ -45,6 +51,7 @@ public class ServiceApiImpl implements ServiceApi {
     private HttpHeaders headers = new HttpHeaders();
     private MultiValueMap<String, String> bodyParameters = new LinkedMultiValueMap<>();
     private User user;
+    private Map<Short, Map<String, String>> mapRym;
 
 
     TracksUtil tracksUtil;
@@ -190,10 +197,10 @@ public class ServiceApiImpl implements ServiceApi {
         String apiSearchType;
 
         //if track
-        if (searchType == ServiceApi.SEARCH_TRACK) {
+        if (searchType == ServiceApi.search_SEARCH_TRACK) {
             theString = tracksUtil.clearSpecialChar(paramToFind);
             apiSearchType = "track";
-        } else if (searchType == ServiceApi.SEARCH_ARTIST) {
+        } else if (searchType == ServiceApi.search_SEARCH_ARTIST) {
             apiSearchType = "artist";
             theString = tracksUtil.addPlus(theString);
         } else {
@@ -231,11 +238,11 @@ public class ServiceApiImpl implements ServiceApi {
             T result;
             JavaType javaType;
             ///JavaType javaType = objectMapper.getTypeFactory().constructType(objectClass);
-            if (searchType == ServiceApi.SEARCH_TRACK) {
+            if (searchType == ServiceApi.search_SEARCH_TRACK) {
                 response = template.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
                 javaType = objectMapper.getTypeFactory().constructType(SearchTrack.class);
                 result = objectMapper.readValue(response.getBody(), javaType);
-            } else if (searchType == ServiceApi.SEARCH_ARTIST) {
+            } else if (searchType == ServiceApi.search_SEARCH_ARTIST) {
                 response = template.exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
                 javaType = objectMapper.getTypeFactory().constructType(SearchArtist.class);
                 result = objectMapper.readValue(response.getBody(), javaType);
@@ -261,7 +268,7 @@ public class ServiceApiImpl implements ServiceApi {
 
     @Override
     public AlbumItem searchAlbum(String albumToFind) {
-        SearchAlbum searchAlbum = search(albumToFind, ServiceApi.SEARCH_ALBUM);
+        SearchAlbum searchAlbum = search(albumToFind, ServiceApi.search_SEARCH_ALBUM);
         System.out.println();
         try {
             return searchAlbum.getAlbums().getItems().get(0);
@@ -276,7 +283,7 @@ public class ServiceApiImpl implements ServiceApi {
 
     @Override
     public ArtistItem searchArtist(String artistToFind) {
-        SearchArtist searchArtist = search(artistToFind, ServiceApi.SEARCH_ARTIST);
+        SearchArtist searchArtist = search(artistToFind, ServiceApi.search_SEARCH_ARTIST);
         System.out.println();
         try {
             return searchArtist.getArtists().getItems().get(0);
@@ -291,7 +298,7 @@ public class ServiceApiImpl implements ServiceApi {
 
     @Override
     public TrackItem searchTrack(String trackToFind) {
-        SearchTrack i = search(trackToFind, ServiceApi.SEARCH_TRACK);
+        SearchTrack i = search(trackToFind, ServiceApi.search_SEARCH_TRACK);
         System.out.println();
         try {
             TrackItem track = i.getTracks().getItems().get(0);
@@ -366,8 +373,21 @@ public class ServiceApiImpl implements ServiceApi {
         }
     }
 
+//    @Override
+//    public Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(List<String> albums, List<String> artist, String playlistID, int amountTracks) {
+//
+//
+//        return null;
+//    }
+//
+//    @Override
+//    public Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(List<String> albums, List<String> artists, String playlistID, int amount) {
+//        return submitAddAllTracks(albums, artists, playlistID, amount, false);
+//    }
+
     /**
      * Main method for searching and adding tracks
+     *
      * @param albums
      * @param artists
      * @param playlistID
@@ -377,7 +397,7 @@ public class ServiceApiImpl implements ServiceApi {
      * inner key true=success, false=fail
      */
     @Override
-    public Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(List<String> albums, List<String> artists, String playlistID, int amountTracks) {
+    public Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(List<String> albums, List<String> artists, String playlistID, int amountTracks, boolean rym) {
         if (beforeCall() == null) {
             return null;
         }
@@ -387,14 +407,22 @@ public class ServiceApiImpl implements ServiceApi {
 
         if (albums != null) {
             Map<Boolean, List<String>> mapInternalAlbum = new HashMap<>();
-
-            //find album
-            Map<Boolean, List<AlbumItem>> mapSearchAlbum = albums.stream().map(e -> searchAlbum(e)).collect(Collectors.partitioningBy(it -> it.getId() != null));
-            List<String> failedAlbum = mapSearchAlbum.get(false).stream().map(AlbumItem::getName).collect(Collectors.toList());
-            mapInternalAlbum.put(false, failedAlbum);
+            Map<Boolean, List<AlbumItem>> mapSearchAlbum = new HashMap<>();
+            List<String> cleanIdList;
+            List<String> failedAlbum;
+            //find album != rym
+            if (!rym){
+                mapSearchAlbum = albums.stream().map(e -> searchAlbum(e)).collect(Collectors.partitioningBy(it -> it.getId() != null));
+                cleanIdList = mapSearchAlbum.get(true).stream().map(AlbumItem::getId).collect(Collectors.toList());
+                failedAlbum = mapSearchAlbum.get(false).stream().map(AlbumItem::getName).collect(Collectors.toList());
+                mapInternalAlbum.put(false, failedAlbum);
+            } else {
+                cleanIdList = albums.stream().map(i-> mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).get(i)).collect(Collectors.toList());
+            }
+            System.out.println();
 
             //get track ids
-            List<List<AlbumTracksItem>> listAlbumTracks = mapSearchAlbum.get(true).stream().map(i -> getAlbumTrackIds(i.getId())).collect(Collectors.toList());
+            List<List<AlbumTracksItem>> listAlbumTracks = cleanIdList.stream().map(i -> getAlbumTrackIds(i)).collect(Collectors.toList());
             //convert ids to list<string> (each string = ids of an album)
             List<String> listIds = listAlbumTracks.stream().map(i -> i.stream().map(l1 -> l1.getId()).collect(Collectors.joining(","))).collect(Collectors.toList());
             //get popularity of the ids (from album)
@@ -402,43 +430,56 @@ public class ServiceApiImpl implements ServiceApi {
             //sort popularity of the ids (from album) and set amount
             List<Map<Integer, List<String>>> listAlbumPopularitySorted = listPopularity.stream().map(i -> tracksUtil.clearTopPopularityAlbum(i, amountTracks)).collect(Collectors.toList());
             //joining cleared
-            listToAddAlbum = listAlbumPopularitySorted.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
+            listToAddAlbum = listAlbumPopularitySorted.stream().flatMap(i -> i.get(0).stream()).collect(Collectors.toList());
 
             if (addTracks(new Uri(listToAddAlbum), playlistID)) {
-                mapInternalAlbum.put(true, listAlbumPopularitySorted.stream().flatMap(i->i.get(1).stream()).collect(Collectors.toList()));
+                mapInternalAlbum.put(true, listAlbumPopularitySorted.stream().flatMap(i -> i.get(1).stream()).collect(Collectors.toList()));
             } else {
                 mapInternalAlbum.put(true, null);
             }
 
             mapReturn.put(0, mapInternalAlbum);
-        } else{
+        } else {
             mapReturn.put(0, null);
         }
 
-        if (artists != null){
+        if (artists != null) {
             Map<Boolean, List<String>> mapInternalArtist = new HashMap<>();
+            Map<Boolean, List<ArtistItem>> mapSearchArtist = new HashMap<>();
+            List<String> cleanIdList;
+            List<String> failedArtist;
 
-            //search artist
-            Map<Boolean, List<ArtistItem>> mapSearchArtist = artists.stream().map(e -> searchArtist(e)).collect(Collectors.partitioningBy(it -> it.getId() != null));
-            List<String> failedAlbum = mapSearchArtist.get(false).stream().map(ArtistItem::getName).collect(Collectors.toList());
-            mapInternalArtist.put(false, failedAlbum);
+            if (!rym){
+//                mapSearchAlbum = albums.stream().map(e -> searchAlbum(e)).collect(Collectors.partitioningBy(it -> it.getId() != null));
+//                cleanIdList = mapSearchAlbum.get(true).stream().map(AlbumItem::getId).collect(Collectors.toList());
+//                failedAlbum = mapSearchAlbum.get(false).stream().map(AlbumItem::getName).collect(Collectors.toList());
+//                mapInternalAlbum.put(false, failedAlbum);
+
+                mapSearchArtist = artists.stream().map(e -> searchArtist(e)).collect(Collectors.partitioningBy(it -> it.getId() != null));
+                cleanIdList = mapSearchArtist.get(true).stream().map(ArtistItem::getId).collect(Collectors.toList());
+                failedArtist = mapSearchArtist.get(false).stream().map(ArtistItem::getName).collect(Collectors.toList());
+                mapInternalArtist.put(false, failedArtist);
+            } else {
+                cleanIdList = artists.stream().map(i-> mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).get(i)).collect(Collectors.toList());
+            }
+
 
             //get top tracks
-            Map<Boolean, List<List<TopArtistTracks>>> mapTopArtistTracks = mapSearchArtist.get(true).stream().map(e -> getArtistTopTracks(e.getId())).collect(Collectors.partitioningBy(it -> it.get(0).getUri() != null));
+            Map<Boolean, List<List<TopArtistTracks>>> mapTopArtistTracks = cleanIdList.stream().map(e -> getArtistTopTracks(e)).collect(Collectors.partitioningBy(it -> it.get(0).getUri() != null));
             //get uris and number of tracks selected
             List<String> finalListToAddAlbum = listToAddAlbum;
             List<Map<Integer, List<String>>> listClearedArtistTopTracks = mapTopArtistTracks.get(true).stream().map(e -> tracksUtil.clearTopPopularityArtist(e, finalListToAddAlbum, amountTracks)).collect(Collectors.toList());
             //joining cleared
-            List<String> listToAddArtist = listClearedArtistTopTracks.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
+            List<String> listToAddArtist = listClearedArtistTopTracks.stream().flatMap(i -> i.get(0).stream()).collect(Collectors.toList());
 
             if (addTracks(new Uri(listToAddArtist), playlistID)) {
-                mapInternalArtist.put(true, listClearedArtistTopTracks.stream().flatMap(i->i.get(1).stream()).collect(Collectors.toList()));
+                mapInternalArtist.put(true, listClearedArtistTopTracks.stream().flatMap(i -> i.get(1).stream()).collect(Collectors.toList()));
             } else {
                 mapInternalArtist.put(true, null);
             }
 
             mapReturn.put(1, mapInternalArtist);
-        } else{
+        } else {
             mapReturn.put(1, null);
         }
         System.out.println();
@@ -500,6 +541,80 @@ public class ServiceApiImpl implements ServiceApi {
 
         return a.getTracks();
     }
+
+    /**
+     * gets Spotify songs from given RYM top releases page (I.E.:https://rateyourmusic.com/customchart?page=1&chart_type=top&type=album&year=alltime&genre_include=1&genres=Atmospheric+Black+Metal&include_child_genres=t&include=both&limit=none&countries=
+     *
+     * @param url
+     * @param searchType    what to search:
+     *                      ServiceApi.getRYM_SEARCH_BOTH = 1; (search the artists and the albums from the given page)
+     *                      ServiceApi.getRYM_SEARCH_ARTIST = 2;
+     *                      ServiceApi.getRYM_SEARCH_ALBUM = 3;
+     * @param amountResults amount of results requested (maximum of 40)
+     * @return a Map with keys of what was requested (2=artists, 3=albums, 2 and 3 for both), inner map has the album/artist name as key and id as value
+     */
+    @Override
+    public Map<Short, Map<String, String>> getRYM(String url, short searchType, int amountResults) {
+
+
+        try {
+            Document doc = Jsoup.connect(url).get();
+            Elements elements = doc.getElementsByClass("ui_stream_link_btn_spotify");
+
+            Map<Short, Map<String, String>> mapOuter = new HashMap<>();
+            Map<String, String> mapInnerArtist = new HashMap<>();
+            Map<String, String> mapInnerAlbum = new HashMap<>();
+            int index = amountResults>elements.size() ? elements.size() : amountResults;
+
+            for (int i=0;i<index;i++){
+                int j = 0;
+                if (searchType==ServiceApi.getRYM_SEARCH_ARTIST || searchType==ServiceApi.getRYM_SEARCH_BOTH) {
+                    do {
+                        if (elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString().
+                                equalsIgnoreCase(elements.get(j).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString())) {
+
+                            List<AlbumTracksItem> artistIds = getAlbumTrackIds(elements.get(i).attributes().get("href").split("album/")[1]);
+
+
+                            mapInnerArtist.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(),
+                                    artistIds.get(0).getArtists().get(0).getId());
+                            break;
+                        }
+                        j++;
+                    } while (j <= mapInnerAlbum.size());
+                }
+                mapInnerAlbum.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString()+" - "+elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(), elements.get(i).attributes().get("href").split("album/")[1]);
+
+//                artists.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
+//                albums.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString()+" - "+elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
+//                ids.add(elements.get(i).attributes().get("href").split("album/")[1]);
+            }
+            if (searchType==ServiceApi.getRYM_SEARCH_BOTH){
+                mapOuter.put(ServiceApi.getRYM_SEARCH_ARTIST, mapInnerArtist);
+                mapOuter.put(ServiceApi.getRYM_SEARCH_ALBUM, mapInnerAlbum);
+                mapRym = mapOuter;
+                return mapOuter;
+            } else if (searchType==ServiceApi.getRYM_SEARCH_ARTIST){
+                mapOuter.put(ServiceApi.getRYM_SEARCH_ARTIST, mapInnerArtist);
+                mapRym = mapOuter;
+                return mapOuter;
+            } else if (searchType==ServiceApi.getRYM_SEARCH_ALBUM){
+                mapOuter.put(ServiceApi.getRYM_SEARCH_ALBUM, mapInnerAlbum);
+                mapRym = mapOuter;
+                return mapOuter;
+            }
+            System.out.println("you aren't supposed to be here");
+            return null;
+        } catch (IOException | IllegalArgumentException e) {
+            System.out.println("problem in Jsoup (problem with link? )");
+            //e.printStackTrace();
+            return null;
+        } catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     //=========================internal methods
 
@@ -581,6 +696,17 @@ public class ServiceApiImpl implements ServiceApi {
             return null;
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    @Override
+    public void testMap(List<String> list) {
+
+        try {
+            System.out.println("====="+mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).get(list.get(0)));
+            System.out.println();
+        } catch (Exception e){
+
         }
     }
 }

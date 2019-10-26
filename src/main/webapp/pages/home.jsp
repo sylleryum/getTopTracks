@@ -11,8 +11,28 @@
     <script>
 
         document.addEventListener('DOMContentLoaded', function () {
+            //problem
+            <c:if test="${rymError}">
+                alert("Unable to get RYM chart, please check URL inserted");
+            </c:if>
 
+            //artist
+            <c:if test="${rymArtists!=null}">
 
+            <c:forEach var="artists" items="${rymArtists}">
+            document.getElementById("taArtist").value=document.getElementById("taArtist").value+"${artists}\n";
+            </c:forEach>
+
+            </c:if>
+            //album
+            <c:if test="${rymAlbums!=null}">
+
+            <c:forEach var="album" items="${rymAlbums}">
+            document.getElementById("taAlbum").value=document.getElementById("taAlbum").value+"${album}\n";
+            </c:forEach>
+
+            </c:if>
+/////////////////////////////////////////////////////////////
             <c:choose>
             <c:when test="${noToken==true}">
             document.getElementById("no-token").classList.remove("block-style");
@@ -38,18 +58,56 @@
             }
         }
 
+        function searchChecker(){
+
+            if ((document.getElementById("sString").checked) || (document.getElementById("sRymResults")!=null && document.getElementById("sRymResults").checked)) {
+                document.getElementById("string").classList.remove("block-style");
+                document.getElementById("rym").classList.add("block-style");
+
+                document.getElementById("main-select").classList.remove("block-style");
+                document.getElementById("main-playlist").classList.remove("block-style");
+
+                document.getElementById("submit-button").textContent = "Give me my playlist!";
+
+                document.getElementById("taArtist").placeholder = "Paste desired artists here";
+                document.getElementById("taAlbum").placeholder = "Paste desired albums here";
+            } else {
+                document.getElementById("rym").classList.remove("block-style");
+                document.getElementById("string").classList.add("block-style");
+
+                document.getElementById("main-select").classList.add("block-style");
+                document.getElementById("main-playlist").classList.add("block-style");
+
+                document.getElementById("submit-button").textContent = "Search RYM chart";
+                document.getElementById("submit-button").textContent = "Search RYM chart";
+
+                document.getElementById("taArtist").placeholder = "Paste ONE RYM chart URL (including HTTP://) to search for ARTISTS here";
+                document.getElementById("taAlbum").placeholder = "Paste ONE RYM chart URL (including HTTP://) to search for ALBUMS here";
+                //title=""
+            }
+        }
+
         function validation() {
             var errors = '';
-            if (document.getElementById("rNew").checked) {
 
-                if (document.getElementById("playlistName").value === "") {
-                    errors = "Please choose a name for the new playlist";
-                }
-            } else if (!document.getElementById("rNew").checked && !document.getElementById("rExisting").checked) {
-                errors = "Please select new or existing playlist";
+            if ((document.getElementById("sRymResults")===null && (!document.getElementById("sString").checked) && (!document.getElementById("sRym").checked)) ||
+                (document.getElementById("sRymResults")!=null && (!document.getElementById("sRymResults").checked) &&(!document.getElementById("sString").checked) && (!document.getElementById("sRym").checked))) {
+                errors += "Please select search type";
             }
 
-            if (document.getElementById("searchNameArtist").value === "" && document.getElementById("searchNameAlbum").value === "") {
+            if (document.getElementById("sString").checked  ||
+                (document.getElementById("sRymResults")!=null && (document.getElementById("sRymResults").checked))) {
+                if (document.getElementById("rNew").checked) {
+
+                    if (document.getElementById("playlistName").value === "") {
+                        errors = "\rPlease choose a name for the new playlist";
+                    }
+                } else if (!document.getElementById("rNew").checked && !document.getElementById("rExisting").checked) {
+                    errors = "\rPlease select new or existing playlist";
+                }
+            }
+
+            if ((document.getElementById("taArtist").value === "") && (document.getElementById("taAlbum").value === "")) {
                 errors += "\rPlease insert artist(s) or album(s)";
             }
 
@@ -94,7 +152,18 @@
             <div class="h-80 col-md-10 bg-4 text-1 rounded-lg pl-4 pr-4 pt-2 overflow-auto block-style"
                  id="main-window">
 
-                <div class="row main-select pb-1 justify-content-center">
+                <div class="row pb-2 justify-content-center">
+                    <c:if test="${(rymArtists!=null) || (rymAlbums!=null)}">
+                        <label class="font-weight-bold"><input type="radio" id="sRymResults" name="searchRadio" value="3"
+                                      onchange="searchChecker()">Choose from RYM results&nbsp;retrieved&nbsp;&nbsp;</label>
+                    </c:if>
+                    <label><input type="radio" id="sString" name="searchRadio" value="1"
+                                  onchange="searchChecker()">Search Artists or/and Albums&nbsp;&nbsp;</label>
+                    <label><input type="radio" id="sRym" name="searchRadio" value="2"
+                                  onchange="searchChecker()">Search rateyourmusic.com charts&nbsp;&nbsp;</label>
+                </div>
+
+                <div id="main-select" class="block-style row main-select pb-1 justify-content-center">
                     <label><input type="radio" id="rNew" name="playlistRadio" value="new"
                                   onchange="radioChecker()">New
                         playlist&nbsp;&nbsp;&nbsp;</label>
@@ -102,7 +171,7 @@
                                   onchange="radioChecker()">Existing
                         playlist</label>
                 </div>
-                <div class="row main-playlist pb-2 justify-content-center">
+                <div id="main-playlist" class="block-style row main-playlist pb-2 justify-content-center">
                     <div id="new-playlist" class="block-style">
                         Playlist name: <input type="text" class="rounded-lg border-0 bg-5 text-1" id="playlistName"
                                               name="playlistName"/>
@@ -116,28 +185,32 @@
                         </select>
                     </div>
                 </div>
-                <div class="row pb-2 justify-content-center">
-                    Search Artists or/and Albums:
-                </div>
+
                 <div class="row main-textarea form-group pr-1 mb-0 pb-2">
                     <div class="col-md-6 p-0 mb-1">
-                                   <textarea class="textarea-search form-control md-textarea bg-5 text-1 border-0"
+
+                                   <textarea id="taArtist"
+                                             class="textarea-search form-control md-textarea bg-5 text-1 border-0"
                                              rows="5" id="searchNameArtist"
                                              name="searchNameArtist"
                                              placeholder="Paste desired artists here"></textarea>
                     </div>
                     <div class="col-md-6 p-0 small-padding">
-                                   <textarea class="textarea-search form-control md-textarea bg-5 text-1 border-0"
+                                   <textarea id="taAlbum" class="textarea-search form-control md-textarea bg-5 text-1 border-0"
                                              rows="5" id="searchNameAlbum"
                                              name="searchNameAlbum" placeholder="Paste desired albums here"></textarea>
                     </div>
                 </div>
-                <div class="row track-amount pb-2 justify-content-center text-center">
-                    <label><input type="radio" id="rAmount1" name="amountRadio" value="1" onchange="">1 track&nbsp;&nbsp;&nbsp;</label>
-                    <label><input type="radio" id="rAmount2" name="amountRadio" value="2" onchange="">2 tracks&nbsp;&nbsp;&nbsp;</label>
-                    <label><input type="radio" id="rAmount3" name="amountRadio" value="3" checked onchange="">3 tracks&nbsp;&nbsp;&nbsp;</label>
-                    <label><input type="radio" id="rAmount4" name="amountRadio" value="4" onchange="">4 tracks&nbsp;&nbsp;&nbsp;</label>
-                    <label><input type="radio" id="rAmount5" name="amountRadio" value="5" onchange="">5 tracks&nbsp;&nbsp;&nbsp;</label>
+                <div id="rym" class="block-style row chart-amount pb-2 justify-content-center text-center">
+                    Search up to what position from chart:&nbsp;&nbsp;<input type="number" name="amountChart" id="amountChart"
+                                                                            class="rounded-lg border-0 bg-5 text-1" value="3" min="1" max="40" style="width: 3em;">
+                </div>
+                <div id="string" class="block-style row track-amount pb-2 justify-content-center text-center">
+                    <label><input type="radio" id="rAmount11" name="amountRadio" value="1" onchange="">1 track&nbsp;&nbsp;&nbsp;</label>
+                    <label><input type="radio" id="rAmount12" name="amountRadio" value="2" onchange="">2 tracks&nbsp;&nbsp;&nbsp;</label>
+                    <label><input type="radio" id="rAmount13" name="amountRadio" value="3" checked onchange="">3 tracks&nbsp;&nbsp;&nbsp;</label>
+                    <label><input type="radio" id="rAmount14" name="amountRadio" value="4" onchange="">4 tracks&nbsp;&nbsp;&nbsp;</label>
+                    <label><input type="radio" id="rAmount15" name="amountRadio" value="5" onchange="">5 tracks&nbsp;&nbsp;&nbsp;</label>
                 </div>
                 <div class="row main-go pb-2 justify-content-center">
                     <button type="submit" class="btn bg-2 btn-sm btn-block text-uppercase font-weight-bold text-4"

@@ -1,6 +1,7 @@
 package com.spotifyapi.demo;
 
 import com.spotifyapi.demo.entity.*;
+import com.spotifyapi.demo.entity.albumTracks.AlbumTracks;
 import com.spotifyapi.demo.entity.albumTracks.AlbumTracksItem;
 import com.spotifyapi.demo.entity.albumTracksPopularity.TrackPopularity;
 import com.spotifyapi.demo.entity.artistTopTracks.TopArtistTracks;
@@ -16,6 +17,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Node;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +35,12 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.spotifyapi.demo.service.ServiceApi.getRYM_SEARCH_BOTH;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -47,9 +57,45 @@ public class DemoApplicationTests {
     @Autowired
     ServiceApi serviceApi;
 
-    String accessToken ="BQB6Gz_FYABRw9pFpky9AQD0LlMiw0L6Tv8tie8ZnWQXeFtyVzcxRbdK__vt4MUsPj58CxhmuBQoP3QbB4hdpfYTh603JHnPxtbbiZDz9vUcv9B5kKb1fgdECCCLq7Ome6tlSYUgEo2vVZqnDJCCek9UKUepgfQ_aiDOj1DP3qrByBFpPiSqhSkCVrmSyZAGrE5Q2S5GamToz3FpKPR2x7H92rD7QIaqPVCLVTySk4Je4mzRnpqnnOZgnl3cqJRv7oupmATS07Q65Eaafg";
+    String accessToken ="BQDFSu87p-AZMoPK2sz4RxMAr5tuAwgP6Gr-poRq57y2EQWzI-Z9YhGTUuSRgB0zf-L9UB6wtVuPTBk3DntvwTN90ashXPOXOCCrjD_ydJSd-CHj44G7wftHItEflsjAyPx-DOvV2ndLFA6qsxw57tUIQNWXRXQ7PXwWQ8piMlpRK685PmGXgwXKqXmAB94ve8kh-HAdLJ6PmB8GLqvAQRG6CH8_OtS-jDiwOvgp_4o7TasF5TW_Iqn6PC5dwETFL88bucGNOKgV1wNSDg";
     AccessToken accesstoken = new AccessToken(accessToken,
             3600000 + System.currentTimeMillis());
+
+    @Test
+    public void testGetRYM(){
+        serviceApi.test(accesstoken);
+        String tt = "https://open.spotify.com/album/277GP8d3KlBSQwMZJza6pe";
+        serviceApi.getRYM("https://rateyourmusic.com/customchart?page=1&chart_type=top&type=album&year=alltime&genre_include=1&genres=Atmospheric+Black+Metal&include_child_genres=t&include=both&limit=none&countries=", getRYM_SEARCH_BOTH, 85);
+        System.out.println();
+
+        String url = "https://rateyourmusic.com/customchart?page=1&chart_type=top&type=album&year=alltime&genre_include=1&genres=Atmospheric+Black+Metal&include_child_genres=t&include=both&limit=none&countries=";
+        Document doc=null;
+//        String ID = getId(url);
+//        return serviceApiYoutube.getClearSongName(url);
+
+        try {
+            doc = Jsoup.connect(url).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Elements elements = doc.getElementsByClass("ui_stream_link_btn_spotify");
+            System.out.println();
+            //System.out.println("Song name "+doc.getElementsByTag("h1"));
+            String att = elements.get(2).attributes().get("href");
+            String testArtist = elements.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString();
+            String testAlbum = elements.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString();
+            System.out.println();
+        } catch (Exception e) {
+            System.out.println("not possible to get YOUTUBE songname " + url);
+            e.printStackTrace();
+        }
+
+        List<AlbumTracksItem> test = serviceApi.getAlbumTrackIds("5OEz7YwAQyYvaSl1pmkPCI");
+        test.get(0).getArtists().get(0).getId();
+        System.out.println();
+    }
 
     @Test
     public void testSubmitArtist(){

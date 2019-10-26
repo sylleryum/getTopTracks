@@ -25,9 +25,13 @@ public interface ServiceApi {
     String GET_SEVERAL_TRACKS = "https://api.spotify.com/v1/tracks";
     String GET_YOUTUBE_SONG_NAME = "https://www.googleapis.com/youtube/v3/videos";
     String YOUTUBE_KEY = "AIzaSyCESltrZhcNxRodbjop8fMLhhtIfxD-_Wk";
-    short SEARCH_TRACK = 1;
-    short SEARCH_ARTIST = 2;
-    short SEARCH_ALBUM = 3;
+    short getRYM_SEARCH_BOTH = 1;
+    short getRYM_SEARCH_ARTIST = 2;
+    short getRYM_SEARCH_ALBUM = 3;
+    short search_SEARCH_TRACK = 1;
+    short search_SEARCH_ARTIST = 2;
+    short search_SEARCH_ALBUM = 3;
+
 
     AccessToken getAccessToken(String theCode);
     AccessToken beforeCall();
@@ -41,12 +45,17 @@ public interface ServiceApi {
     List<TopArtistTracks> getArtistTopTracks(String artistId);
     TrackItem searchTrack(String trackTofind);
     Boolean addTracks(Uri uris, String playlistID);
-    Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(List<String> albums, List<String> artists, String playlistID, int amount);
+
+    /////Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(Map<String, String> mapAlbums, Map<String, String> mapArtist, String playlistID, int amountTracks);
+    Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(List<String> albums, List<String> artists, String playlistID, int amount, boolean rym);
+    /////Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(List<String> albums, List<String> artists, String playlistID, int amount);
     String getClearSongName(String v);
     List<TrackPopularity> getTracksPopularity(String trackIds);
+    Map<Short, Map<String, String>> getRYM(String url, short searchType, int amountResults);
 
     boolean isAccessToken();
     void test(AccessToken accessToken);
     void testRefresh(String refresh);
     RestTemplate interceptorRest();
+    void testMap(List<String> list);
 }
