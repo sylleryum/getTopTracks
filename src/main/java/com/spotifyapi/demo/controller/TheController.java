@@ -118,7 +118,7 @@ public class TheController {
             albumsToFind = null;
         }
 
-        Map<Short, Map<String, String>> mapRym = null;
+        Map<Short, List<String>> mapRym = null;
 //        if (searchRadio==1){
 //            System.out.println();
 //            serviceApi.testMap(artistsToFind);
@@ -129,26 +129,26 @@ public class TheController {
                 if (artistsToFind != null && albumsToFind != null) {
                     mapRym = serviceApi.getRYM(artistsToFind.get(0), ServiceApi.getRYM_SEARCH_BOTH, amountChart);
                     System.out.println();
-                    ArrayList<String> listArtist = new ArrayList<String>(mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).keySet());
-                    ArrayList<String> listAlbum = new ArrayList<String>(mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).keySet());
+//                    ArrayList<String> listArtist = new ArrayList<String>(mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).keySet());
+//                    ArrayList<String> listAlbum = new ArrayList<String>(mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).keySet());
                     System.out.println();
-                    theModel.addAttribute("rymArtists", listArtist);
-                    theModel.addAttribute("rymAlbums", listAlbum);
+                    theModel.addAttribute("rymArtists", mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST));
+                    theModel.addAttribute("rymAlbums", mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM));
                     theModel.addAttribute("playlists", listPlaylist);
                     return "home";
 
                 } else if (artistsToFind != null && albumsToFind == null) {
                     mapRym = serviceApi.getRYM(artistsToFind.get(0), ServiceApi.getRYM_SEARCH_ARTIST, amountChart);
-                    ArrayList<String> listArtist = new ArrayList<>(mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).keySet());
+                    //ArrayList<String> listArtist = new ArrayList<>(mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).keySet());
                     System.out.println();
-                    theModel.addAttribute("rymArtists", listArtist);
+                    theModel.addAttribute("rymArtists", mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST));
                     theModel.addAttribute("playlists", listPlaylist);
                     return "home";
                 } else if (artistsToFind == null && albumsToFind != null) {
                     mapRym = serviceApi.getRYM(albumsToFind.get(0), ServiceApi.getRYM_SEARCH_ALBUM, amountChart);
-                    ArrayList<String> listAlbum = new ArrayList<>(mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).keySet());
+                    //ArrayList<String> listAlbum = new ArrayList<>(mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).keySet());
                     System.out.println();
-                    theModel.addAttribute("rymAlbums", listAlbum);
+                    theModel.addAttribute("rymAlbums", mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM));
                     theModel.addAttribute("playlists", listPlaylist);
                     return "home";
                 }
@@ -163,7 +163,7 @@ public class TheController {
         Map<Integer, Map<Boolean, List<String>>> mapReturn;
         if (playlistRadio.equalsIgnoreCase("existing")) {
             if (searchRadio==3){
-                mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, true);
+                mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
             } else {
                 mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
             }
@@ -172,7 +172,7 @@ public class TheController {
             listPlaylist = serviceApi.getPlaylists();
             if (playlist != null) {
                 if (searchRadio==3){
-                    mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, true);
+                    mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
                 } else {
                     mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, playlist.getId(), amountRadio, false);
                 }

@@ -22,9 +22,11 @@ import com.spotifyapi.demo.helper.LoggingRequestInterceptor;
 import com.spotifyapi.demo.helper.TracksUtil;
 import com.spotifyapi.demo.helper.YoutubeUtil;
 import com.spotifyapi.demo.entity.user.User;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.FormElement;
 import org.jsoup.select.Elements;
 import org.springframework.http.*;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
@@ -554,16 +556,35 @@ public class ServiceApiImpl implements ServiceApi {
      * @return a Map with keys of what was requested (2=artists, 3=albums, 2 and 3 for both), inner map has the album/artist name as key and id as value
      */
     @Override
-    public Map<Short, Map<String, String>> getRYM(String url, short searchType, int amountResults) {
+    public Map<Short, List<String>> getRYM(String url, short searchType, int amountResults) {
 
 
         try {
-            Document doc = Jsoup.connect(url).get();
-            Elements elements = doc.getElementsByClass("ui_stream_link_btn_spotify");
 
-            Map<Short, Map<String, String>> mapOuter = new HashMap<>();
+            String urlProxy = "https://hyperbyte.net/";
+            Connection.Response doc = Jsoup.connect(urlProxy).method(Connection.Method.GET).execute();
+            Document responseDocument = doc.parse();
+            Element potentialForm = responseDocument.select("form#hyperform1").first();
+            Element search = responseDocument.selectFirst("input[name=url]");
+            search.attr("value", url);
+            FormElement form = (FormElement) potentialForm;
+
+            Document searchResults = form.submit().cookies(doc.cookies()).post();
+            Elements elements = searchResults.getElementsByClass("ui_stream_link_btn_spotify");
+            //String e = elements.get(0).attributes().get("href");
+//            String artist = elements.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString();
+//            String album = elements.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString();
+//            System.out.println("=== "+artist+" "+album);
+
+//            Document doc = Jsoup.connect(url).userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:54.0) Gecko/20100101 Firefox/70.0").followRedirects(true).timeout(100000).ignoreContentType(true).get();
+//
+//            Elements elements = doc.getElementsByClass("ui_stream_link_btn_spotify");
+
+            Map<Short, List<String>> mapOuter = new HashMap<>();
             Map<String, String> mapInnerArtist = new HashMap<>();
             Map<String, String> mapInnerAlbum = new HashMap<>();
+            List<String> artists=new ArrayList<>();
+            List<String> albums=new ArrayList<>();
             int index = amountResults>elements.size() ? elements.size() : amountResults;
 
             for (int i=0;i<index;i++){
@@ -573,41 +594,44 @@ public class ServiceApiImpl implements ServiceApi {
                         if (elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString().
                                 equalsIgnoreCase(elements.get(j).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString())) {
 
-                            List<AlbumTracksItem> artistIds = getAlbumTrackIds(elements.get(i).attributes().get("href").split("album/")[1]);
+                            //List<AlbumTracksItem> artistIds = getAlbumTrackIds(elements.get(i).attributes().get("href").split("album/")[1]);
+                            artists.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
 
-
-                            mapInnerArtist.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(),
-                                    artistIds.get(0).getArtists().get(0).getId());
+//                            mapInnerArtist.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(),
+//                                    artistIds.get(0).getArtists().get(0).getId());
                             break;
                         }
                         j++;
-                    } while (j <= mapInnerAlbum.size());
+                    } while (j <= albums.size());
                 }
-                mapInnerAlbum.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString()+" - "+elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(), elements.get(i).attributes().get("href").split("album/")[1]);
+
+                albums.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString());
+                //mapInnerAlbum.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString()+" - "+elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(), elements.get(i).attributes().get("href").split("album/")[1]);
 
 //                artists.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
 //                albums.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString()+" - "+elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
 //                ids.add(elements.get(i).attributes().get("href").split("album/")[1]);
             }
+            System.out.println();
             if (searchType==ServiceApi.getRYM_SEARCH_BOTH){
-                mapOuter.put(ServiceApi.getRYM_SEARCH_ARTIST, mapInnerArtist);
-                mapOuter.put(ServiceApi.getRYM_SEARCH_ALBUM, mapInnerAlbum);
-                mapRym = mapOuter;
+                mapOuter.put(ServiceApi.getRYM_SEARCH_ARTIST, artists);
+                mapOuter.put(ServiceApi.getRYM_SEARCH_ALBUM, albums);
+                //mapRym = mapOuter;
                 return mapOuter;
             } else if (searchType==ServiceApi.getRYM_SEARCH_ARTIST){
-                mapOuter.put(ServiceApi.getRYM_SEARCH_ARTIST, mapInnerArtist);
-                mapRym = mapOuter;
+                mapOuter.put(ServiceApi.getRYM_SEARCH_ARTIST, artists);
+                //mapRym = mapOuter;
                 return mapOuter;
             } else if (searchType==ServiceApi.getRYM_SEARCH_ALBUM){
-                mapOuter.put(ServiceApi.getRYM_SEARCH_ALBUM, mapInnerAlbum);
-                mapRym = mapOuter;
+                mapOuter.put(ServiceApi.getRYM_SEARCH_ALBUM, albums);
+                //mapRym = mapOuter;
                 return mapOuter;
             }
             System.out.println("you aren't supposed to be here");
             return null;
         } catch (IOException | IllegalArgumentException e) {
             System.out.println("problem in Jsoup (problem with link? )");
-            //e.printStackTrace();
+            e.printStackTrace();
             return null;
         } catch (Exception e){
             e.printStackTrace();
@@ -620,6 +644,7 @@ public class ServiceApiImpl implements ServiceApi {
 
 
     private AccessToken tokenCall(HttpEntity<MultiValueMap<String, String>> requestEntityCall) {
+
         try {
             ///////accessToken = template.postForObject(ServiceApi.GET_ACCESS, requestEntityCall, AccessToken.class);
             //template = new RestTemplate();

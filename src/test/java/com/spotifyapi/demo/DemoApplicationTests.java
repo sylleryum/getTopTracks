@@ -17,11 +17,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Attributes;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Node;
+import org.jsoup.nodes.*;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,19 +55,47 @@ public class DemoApplicationTests {
     @Autowired
     ServiceApi serviceApi;
 
-    String accessToken ="BQDFSu87p-AZMoPK2sz4RxMAr5tuAwgP6Gr-poRq57y2EQWzI-Z9YhGTUuSRgB0zf-L9UB6wtVuPTBk3DntvwTN90ashXPOXOCCrjD_ydJSd-CHj44G7wftHItEflsjAyPx-DOvV2ndLFA6qsxw57tUIQNWXRXQ7PXwWQ8piMlpRK685PmGXgwXKqXmAB94ve8kh-HAdLJ6PmB8GLqvAQRG6CH8_OtS-jDiwOvgp_4o7TasF5TW_Iqn6PC5dwETFL88bucGNOKgV1wNSDg";
+    String accessToken = "BQDFSu87p-AZMoPK2sz4RxMAr5tuAwgP6Gr-poRq57y2EQWzI-Z9YhGTUuSRgB0zf-L9UB6wtVuPTBk3DntvwTN90ashXPOXOCCrjD_ydJSd-CHj44G7wftHItEflsjAyPx-DOvV2ndLFA6qsxw57tUIQNWXRXQ7PXwWQ8piMlpRK685PmGXgwXKqXmAB94ve8kh-HAdLJ6PmB8GLqvAQRG6CH8_OtS-jDiwOvgp_4o7TasF5TW_Iqn6PC5dwETFL88bucGNOKgV1wNSDg";
     AccessToken accesstoken = new AccessToken(accessToken,
             3600000 + System.currentTimeMillis());
 
     @Test
-    public void testGetRYM(){
+    public void testVPN() {
+
+        serviceApi.getRYM("https://rateyourmusic.com/charts/top/album/2016", getRYM_SEARCH_BOTH, 20);
+
+        try {
+            //https://rateyourmusic.com/charts/top/album/2016
+            String url = "https://hyperbyte.net/";
+            Connection.Response doc = Jsoup.connect(url).method(Connection.Method.GET).execute();
+            Document responseDocument = doc.parse();
+            Element potentialForm = responseDocument.select("form#hyperform1").first();
+            Element search = responseDocument.selectFirst("input[name=url]");
+            search.attr("value", "https://rateyourmusic.com/charts/top/album/2016");
+            FormElement form = (FormElement) potentialForm;
+
+            Document searchResults = form.submit().cookies(doc.cookies()).post();
+            Elements elements = searchResults.getElementsByClass("ui_stream_link_btn_spotify");
+            //String e = elements.get(0).attributes().get("href");
+            String artist = elements.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString();
+            String album = elements.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString();
+            System.out.println("=== "+artist+" "+album);
+            System.out.println();
+        }catch (Exception e){
+            System.out.println("deu ruim");
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGetRYM() {
         serviceApi.test(accesstoken);
         String tt = "https://open.spotify.com/album/277GP8d3KlBSQwMZJza6pe";
         serviceApi.getRYM("https://rateyourmusic.com/customchart?page=1&chart_type=top&type=album&year=alltime&genre_include=1&genres=Atmospheric+Black+Metal&include_child_genres=t&include=both&limit=none&countries=", getRYM_SEARCH_BOTH, 85);
         System.out.println();
 
         String url = "https://rateyourmusic.com/customchart?page=1&chart_type=top&type=album&year=alltime&genre_include=1&genres=Atmospheric+Black+Metal&include_child_genres=t&include=both&limit=none&countries=";
-        Document doc=null;
+        Document doc = null;
 //        String ID = getId(url);
 //        return serviceApiYoutube.getClearSongName(url);
 
@@ -98,7 +124,7 @@ public class DemoApplicationTests {
     }
 
     @Test
-    public void testSubmitArtist(){
+    public void testSubmitArtist() {
         serviceApi.test(accesstoken);
 
         //0 2 11
@@ -106,7 +132,7 @@ public class DemoApplicationTests {
 
         List<String> theList = Arrays.asList("spotify:track:54qzcTSGvggVEa1pywUKdK", "spotify:track:2ovwJqPsH7TuD5R1upfwEo", "spotify:track:6b2oQwSGFkzsMtQruIWm2p", "spotify:track:078BAiMFxiuQzUQrpwLcKz", "spotify:track:27rgTetikreqkvedaxrF5N");
         List<String> test = Arrays.asList("spotify:track:6b2oQwSGFkzsMtQruIWm2p", "oi2", "spotify:track:2ovwJqPsH7TuD5R1upfwEo", "oi4");
-        List<String> result = theList.stream().filter(i->!test.stream().anyMatch(in->in.equalsIgnoreCase(i))).collect(Collectors.toList());
+        List<String> result = theList.stream().filter(i -> !test.stream().anyMatch(in -> in.equalsIgnoreCase(i))).collect(Collectors.toList());
 
         System.out.println();
 
@@ -116,18 +142,18 @@ public class DemoApplicationTests {
         System.out.println();
         Map<Boolean, List<List<TopArtistTracks>>> mapTopArtistTracks = mapSearchArtist.get(true).stream().map(e -> serviceApi.getArtistTopTracks(e.getId())).collect(Collectors.partitioningBy(it -> it.get(0).getUri() != null));
         System.out.println();
-        List<Map<Integer, List<String>>> listClearedArtistTopTracks = mapTopArtistTracks.get(true).stream().map(e -> tracksUtil.clearTopPopularityArtist(e,3)).collect(Collectors.toList());
+        List<Map<Integer, List<String>>> listClearedArtistTopTracks = mapTopArtistTracks.get(true).stream().map(e -> tracksUtil.clearTopPopularityArtist(e, 3)).collect(Collectors.toList());
         System.out.println();
 
         //failed (only getting search)
-        List<String> failedResults = mapSearchArtist.get(false).stream().map(e->e.getName()).collect(Collectors.toList());
+        List<String> failedResults = mapSearchArtist.get(false).stream().map(e -> e.getName()).collect(Collectors.toList());
         System.out.println();
 
         //joining cleared
-        List<String> listToAdd = listClearedArtistTopTracks.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
+        List<String> listToAdd = listClearedArtistTopTracks.stream().flatMap(i -> i.get(0).stream()).collect(Collectors.toList());
         System.out.println();
 
-        List<Map<Integer, List<String>>> testDuplicatesResult = mapTopArtistTracks.get(true).stream().map(e -> tracksUtil.clearTopPopularityArtist(e, testDuplicates,3)).collect(Collectors.toList());
+        List<Map<Integer, List<String>>> testDuplicatesResult = mapTopArtistTracks.get(true).stream().map(e -> tracksUtil.clearTopPopularityArtist(e, testDuplicates, 3)).collect(Collectors.toList());
 
         Boolean bResult = serviceApi.addTracks(new Uri(listToAdd), "6CRh3WU4Ygi2S2HPfLm8iP");
         System.out.println("added successfully");
@@ -139,7 +165,7 @@ public class DemoApplicationTests {
     }
 
     @Test
-    public void testSubmitAlbum(){
+    public void testSubmitAlbum() {
         serviceApi.test(accesstoken);
 
         List<String> listAlbum = Arrays.asList("ok computer", "kid a", "pablo honey", "oiejfioo", "lost souls doves");
@@ -149,22 +175,22 @@ public class DemoApplicationTests {
         //find album
         Map<Boolean, List<AlbumItem>> mapSearchAlbum = listAlbum.stream().map(e -> serviceApi.searchAlbum(e)).collect(Collectors.partitioningBy(it -> it.getId() != null));
         //get track ids
-        List<List<AlbumTracksItem>> listAlbumTracks = mapSearchAlbum.get(true).stream().map(i->serviceApi.getAlbumTrackIds(i.getId())).collect(Collectors.toList());
+        List<List<AlbumTracksItem>> listAlbumTracks = mapSearchAlbum.get(true).stream().map(i -> serviceApi.getAlbumTrackIds(i.getId())).collect(Collectors.toList());
         //convert ids to list<string> (each string = ids of an album)
-        List<String> listIds = listAlbumTracks.stream().map(i->i.stream().map(l1->l1.getId()).collect(Collectors.joining(","))).collect(Collectors.toList());
+        List<String> listIds = listAlbumTracks.stream().map(i -> i.stream().map(l1 -> l1.getId()).collect(Collectors.joining(","))).collect(Collectors.toList());
         //get popularity of the ids (from album)
-        List<List<TrackPopularity>> listPopularity = listIds.stream().map(i->serviceApi.getTracksPopularity(i)).collect(Collectors.toList());
+        List<List<TrackPopularity>> listPopularity = listIds.stream().map(i -> serviceApi.getTracksPopularity(i)).collect(Collectors.toList());
         //sort popularity of the ids (from album)
-        List<Map<Integer, List<String>>> mapListAlbumPopularitySorted = listPopularity.stream().map(i->tracksUtil.clearTopPopularityAlbum(i, 3)).collect(Collectors.toList());
+        List<Map<Integer, List<String>>> mapListAlbumPopularitySorted = listPopularity.stream().map(i -> tracksUtil.clearTopPopularityAlbum(i, 3)).collect(Collectors.toList());
         //joining cleared
-        List<String> listToAddAlbum = mapListAlbumPopularitySorted.stream().flatMap(i->i.get(0).stream()).collect(Collectors.toList());
+        List<String> listToAddAlbum = mapListAlbumPopularitySorted.stream().flatMap(i -> i.get(0).stream()).collect(Collectors.toList());
 
         Boolean bResult = serviceApi.addTracks(new Uri(listToAddAlbum), "6CRh3WU4Ygi2S2HPfLm8iP");
         System.out.println("added successfully");
     }
 
     @Test
-    public void testAlbumArtist(){
+    public void testAlbumArtist() {
         serviceApi.test(accesstoken);
         //String s = "Snail Mail \"Pristi!ne\"";
         String s = "ok computer"; //7dxKtc08dYeRVHt3p9CZJn?si=PtwbgNc0RFe1Y4xpKmdGjg
@@ -192,14 +218,14 @@ public class DemoApplicationTests {
     }
 
     @Test
-    public void testRefresh(){
+    public void testRefresh() {
         serviceApi.test(accesstoken);
         //serviceApi.testRefresh("AQC3iZ75gRGcIOUBUKaPnL4AUDNKRv7aUL-T1_tb6g-dXJixErA4zdSkK53ZikS1xj8aBH7-2CjuqpqNdjhpUBUImbIdtvdc9iP_OC9bQMoFGRMRNEwYjXzVfUVizQPHcJmeZw");
         //serviceApi.beforeCall();
     }
 
     @Test
-    public void testSearchSubmit(){
+    public void testSearchSubmit() {
 
         List<String> list = new ArrayList<>();
         list.add("https://www.youtube.com/watch?v=4k4SP01l6rY");
@@ -214,11 +240,11 @@ public class DemoApplicationTests {
         //serviceApi.testRefresh("AQC3iZ75gRGcIOUBUKaPnL4AUDNKRv7aUL-T1_tb6g-dXJixErA4zdSkK53ZikS1xj8aBH7-2CjuqpqNdjhpUBUImbIdtvdc9iP_OC9bQMoFGRMRNEwYjXzVfUVizQPHcJmeZw");
 
 
-        Map<Boolean, List<String>> mapYt = list.stream().map(i->serviceApi.getClearSongName(i)).collect(Collectors.partitioningBy(str-> !str.contains("\b")));
+        Map<Boolean, List<String>> mapYt = list.stream().map(i -> serviceApi.getClearSongName(i)).collect(Collectors.partitioningBy(str -> !str.contains("\b")));
 
-        Map<Boolean, List<TrackItem>> mapSp = mapYt.get(true).stream().map(e-> serviceApi.searchTrack(e)).collect(Collectors.partitioningBy(it->it.getUri()!=null));
+        Map<Boolean, List<TrackItem>> mapSp = mapYt.get(true).stream().map(e -> serviceApi.searchTrack(e)).collect(Collectors.partitioningBy(it -> it.getUri() != null));
 
-        List<String> listToAdd = mapSp.get(true).stream().map(i->i.getUri()).collect(Collectors.toList());
+        List<String> listToAdd = mapSp.get(true).stream().map(i -> i.getUri()).collect(Collectors.toList());
         serviceApi.addTracks(new Uri(listToAdd), "7vOmFSzBe6C4TG7PGvg5lw");
         System.out.println();
 
@@ -275,16 +301,15 @@ public class DemoApplicationTests {
 //        map.add("grant_type", "authorization_code");
 
 
-        HttpEntity<MultiValueMap<String, String>> requestEntity=
+        HttpEntity<MultiValueMap<String, String>> requestEntity =
                 new HttpEntity<MultiValueMap<String, String>>(map, headers);
-        try{
+        try {
             System.out.println("try");
             template = new RestTemplate();
-            AccessToken accessToken = template.postForObject(baseUrl, requestEntity,  AccessToken.class);
+            AccessToken accessToken = template.postForObject(baseUrl, requestEntity, AccessToken.class);
             //accessToken = response.getAccessToken() + " - " + response.getTokenType();
-            System.out.println("FEITOOOOOOOOO "+accessToken.getAccessToken());
-        }
-        catch(RestClientResponseException e) {
+            System.out.println("FEITOOOOOOOOO " + accessToken.getAccessToken());
+        } catch (RestClientResponseException e) {
             System.out.println(e.getMessage());
             System.out.println("Fail " + e.getResponseBodyAsString());
         }
@@ -294,7 +319,7 @@ public class DemoApplicationTests {
     }
 
     @Test
-    public void getTokenNew(){
+    public void getTokenNew() {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -309,16 +334,15 @@ public class DemoApplicationTests {
         HttpEntity<MultiValueMap<String, String>> httpEntity = new HttpEntity<>(requestBody, httpHeaders);
         try {
             AccessToken response = restTemplate.postForObject("https://accounts.spotify.com/api/token", httpEntity, AccessToken.class);
-            System.out.println("success: "+response);
+            System.out.println("success: " + response);
             //httpServletResponse.setHeader("Location", url); // redirect to success page
-        }
-        catch(HttpClientErrorException e) {
+        } catch (HttpClientErrorException e) {
             e.printStackTrace();
         }
     }
 
     @Test
-    public void userDetails(){
+    public void userDetails() {
 
         String url = "https://api.spotify.com/v1/me/";
         RestTemplate template = new RestTemplate();
@@ -331,14 +355,13 @@ public class DemoApplicationTests {
 //        map.add("grant_type", "authorization_code");
 //        map.add("code", CODE);
 //        map.add("redirect_uri", "https://www.getpostman.com/oauth2/callback");
-        try{
+        try {
             HttpEntity<String> entity = new HttpEntity<>("paramenters", headers);
             ResponseEntity<User> response = template.exchange(url, HttpMethod.GET, entity, User.class);
             //String user = template.exchange(url, HttpMethod.GET, headers, String.class);
             //accessToken = response.getAccessToken() + " - " + response.getTokenType();
-            System.out.println("FEITOOOOOOOOO "+response.getStatusCode()+" "+response.getBody());
-        }
-        catch(Exception e){
+            System.out.println("FEITOOOOOOOOO " + response.getStatusCode() + " " + response.getBody());
+        } catch (Exception e) {
             System.out.println("deu r u i m");
             e.printStackTrace();
         }
@@ -367,7 +390,7 @@ public class DemoApplicationTests {
             System.out.println("postForObject");
             String result = restTemplate.postForObject(URL, request, String.class);
             JsonNode root = objectMapper.readTree(result);
-            System.out.println("?? "+result);
+            System.out.println("?? " + result);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -393,7 +416,7 @@ public class DemoApplicationTests {
             System.out.println("postForObject");
             PlaylistItem result = restTemplate.postForObject(URL, request, PlaylistItem.class);
             //JsonNode root = objectMapper.readTree(result);
-            System.out.println("?? "+result);
+            System.out.println("?? " + result);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

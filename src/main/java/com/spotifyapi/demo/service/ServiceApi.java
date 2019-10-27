@@ -16,10 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 public interface ServiceApi {
-    String AUTHORIZE_URL = "https://accounts.spotify.com/authorize?client_id=be0f367a036e4d9485e09f0fe077eb19&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fcallback&scope=user-read-private%20user-read-email%20playlist-read-private%20playlist-modify-public%20playlist-modify-private";
-    String REDIRECT_URL = "http://localhost:8080/callback";
+    String AUTHORIZE_URL = "https://accounts.spotify.com/authorize?client_id=be0f367a036e4d9485e09f0fe077eb19&response_type=code&redirect_uri=https%3A%2F%2Fgettoptracks.herokuapp.com%2Fcallback&scope=user-read-private%20user-read-email%20playlist-read-private%20playlist-modify-public%20playlist-modify-private";
+    String REDIRECT_URL = "https://gettoptracks.herokuapp.com/callback";
     String GET_ACCESS = "https://accounts.spotify.com/api/token";
     String AUTHORIZATION_TO_ACCESS = "Basic YmUwZjM2N2EwMzZlNGQ5NDg1ZTA5ZjBmZTA3N2ViMTk6YWUwZmYyM2QxZTQ3NDRhZjhiN2IzMzQyMDA5OWRhMWU=";
+
+//    String AUTHORIZE_URL = "https://accounts.spotify.com/authorize?client_id=be0f367a036e4d9485e09f0fe077eb19&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fcallback&scope=user-read-private%20user-read-email%20playlist-read-private%20playlist-modify-public%20playlist-modify-private";
+//    String REDIRECT_URL = "http://localhost:8080/callback";
+//    String GET_ACCESS = "https://accounts.spotify.com/api/token";
+//    String AUTHORIZATION_TO_ACCESS = "Basic YmUwZjM2N2EwMzZlNGQ5NDg1ZTA5ZjBmZTA3N2ViMTk6YWUwZmYyM2QxZTQ3NDRhZjhiN2IzMzQyMDA5OWRhMWU=";
     String USER_DETAILS = "https://api.spotify.com/v1/me";
     String SEARCH = "https://api.spotify.com/v1/search";
     String GET_SEVERAL_TRACKS = "https://api.spotify.com/v1/tracks";
@@ -51,7 +56,7 @@ public interface ServiceApi {
     /////Map<Integer, Map<Boolean, List<String>>> submitAddAllTracks(List<String> albums, List<String> artists, String playlistID, int amount);
     String getClearSongName(String v);
     List<TrackPopularity> getTracksPopularity(String trackIds);
-    Map<Short, Map<String, String>> getRYM(String url, short searchType, int amountResults);
+    Map<Short, List<String>> getRYM(String url, short searchType, int amountResults);
 
     boolean isAccessToken();
     void test(AccessToken accessToken);
