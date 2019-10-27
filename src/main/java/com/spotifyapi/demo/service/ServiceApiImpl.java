@@ -22,6 +22,7 @@ import com.spotifyapi.demo.helper.LoggingRequestInterceptor;
 import com.spotifyapi.demo.helper.TracksUtil;
 import com.spotifyapi.demo.helper.YoutubeUtil;
 import com.spotifyapi.demo.entity.user.User;
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -39,7 +40,9 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -644,6 +647,21 @@ public class ServiceApiImpl implements ServiceApi {
 
 
     private AccessToken tokenCall(HttpEntity<MultiValueMap<String, String>> requestEntityCall) {
+
+        try {
+            File result = new File("results.html");
+            FileUtils.copyURLToFile(new URL("https://rateyourmusic.com/charts/top/album/2016"), result);
+
+            Document docFile = Jsoup.parse(result, "UTF-8", "http://example.com/");
+            Elements elementsFile = docFile.getElementsByClass("ui_stream_link_btn_spotify");
+            String artistFile = elementsFile.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString();
+            System.out.println("*** "+artistFile);
+        } catch (Exception e){
+            System.out.println("--- FAIL ");
+            e.printStackTrace();
+        }
+
+
 
         try {
             ///////accessToken = template.postForObject(ServiceApi.GET_ACCESS, requestEntityCall, AccessToken.class);
