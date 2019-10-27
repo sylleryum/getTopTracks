@@ -649,21 +649,6 @@ public class ServiceApiImpl implements ServiceApi {
     private AccessToken tokenCall(HttpEntity<MultiValueMap<String, String>> requestEntityCall) {
 
         try {
-            File result = new File("results.html");
-            FileUtils.copyURLToFile(new URL("https://rateyourmusic.com/charts/top/album/2016"), result);
-
-            Document docFile = Jsoup.parse(result, "UTF-8", "http://example.com/");
-            Elements elementsFile = docFile.getElementsByClass("ui_stream_link_btn_spotify");
-            String artistFile = elementsFile.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString();
-            System.out.println("*** "+artistFile);
-        } catch (Exception e){
-            System.out.println("--- FAIL ");
-            e.printStackTrace();
-        }
-
-
-
-        try {
             ///////accessToken = template.postForObject(ServiceApi.GET_ACCESS, requestEntityCall, AccessToken.class);
             //template = new RestTemplate();
             this.accessToken = template.postForObject(ServiceApi.GET_ACCESS, requestEntityCall, AccessToken.class);
