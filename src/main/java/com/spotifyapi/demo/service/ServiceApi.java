@@ -25,6 +25,8 @@ public interface ServiceApi {
 //    String REDIRECT_URL = "http://localhost:8080/callback";
 //    String GET_ACCESS = "https://accounts.spotify.com/api/token";
 //    String AUTHORIZATION_TO_ACCESS = "Basic YmUwZjM2N2EwMzZlNGQ5NDg1ZTA5ZjBmZTA3N2ViMTk6YWUwZmYyM2QxZTQ3NDRhZjhiN2IzMzQyMDA5OWRhMWU=";
+
+
     String USER_DETAILS = "https://api.spotify.com/v1/me";
     String SEARCH = "https://api.spotify.com/v1/search";
     String GET_SEVERAL_TRACKS = "https://api.spotify.com/v1/tracks";

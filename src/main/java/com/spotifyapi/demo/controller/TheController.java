@@ -124,6 +124,7 @@ public class TheController {
 //            serviceApi.testMap(artistsToFind);
 //        }
 
+        //Search rateyourmusic.com charts
         if (searchRadio == 2) {
             try {
                 if (artistsToFind != null && albumsToFind != null) {

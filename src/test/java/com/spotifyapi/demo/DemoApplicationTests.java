@@ -15,7 +15,6 @@ import com.spotifyapi.demo.helper.YoutubeUtil;
 import com.spotifyapi.demo.service.ServiceApi;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Connection;
@@ -46,7 +45,6 @@ import static com.spotifyapi.demo.service.ServiceApi.getRYM_SEARCH_BOTH;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class DemoApplicationTests {
-
     String baseUrl = "https://accounts.spotify.com/api/token";
     String CODE = "AQDfvwVJkR2UuDIKfwRNAqxUKRoL9HAe_foyboL9t03cR_YGHqYdTmb8crpSmks93dvKQuft99IiUPbM-f2MpSz1wI4kZpJF0LUbQ38awFVwdjiyKHGKDWzk1X4F_8jFTGCKaDCcBwK_RSfUZfAyDshilkPBg582MT-S2GBaOagptElx64w0S4C8eyVFM9fXrDZWlFik2Tj9gQyUOxY2Wrk5gOXEOHkyYnmz67Ve3FZ2gXuiJFVc65PBFJcNj8hp4gdF6_wCv6dFZAE7bzOvC15u6_OhlFlt7LLIEOR-aZjWgVci3xo5_7i7c_bR0Cz_7S_YcxFya1cs1e3D6O1AFIHOwMO28aMLa7tEmkJb";
     String AUTHORIZATION = "Bearer BQB0Q5ThoEzmdqXwLH7q0_KoFNjw3Pgl80xFBa_PKIcQmk0S7d8AR9GkbLgiXbmjYC8tQYPQhmGQgn3Z3i8pXuvp15awKZy1pd214ogATe2eyNu1Z3UQhXMo6JOC5eDYsqkAzc6cg3T6YRMnlDD3w0BKbUn1MdKt8hm2QCO-P7s5ZEfakiqm85fPl_U8YWyiQBQbdVvxWjMKl2wYB3dc1XMoGMmJX6O-C8hVVu03dH0";
@@ -58,21 +56,23 @@ public class DemoApplicationTests {
     @Autowired
     ServiceApi serviceApi;
 
-    String accessToken = "BQDFSu87p-AZMoPK2sz4RxMAr5tuAwgP6Gr-poRq57y2EQWzI-Z9YhGTUuSRgB0zf-L9UB6wtVuPTBk3DntvwTN90ashXPOXOCCrjD_ydJSd-CHj44G7wftHItEflsjAyPx-DOvV2ndLFA6qsxw57tUIQNWXRXQ7PXwWQ8piMlpRK685PmGXgwXKqXmAB94ve8kh-HAdLJ6PmB8GLqvAQRG6CH8_OtS-jDiwOvgp_4o7TasF5TW_Iqn6PC5dwETFL88bucGNOKgV1wNSDg";
+    String accessToken = "BQC4IxsBWrDWq_jfLDj6FFKioR2f4GQJ1z8_6C_lz1cT5NpOHBFZgj3y5tAAeB99hpZ2SnHxQCKfVKhnmfg_dBfyJ5gUTjQnPNtJfF3kl0N388Ty1szzGS4z8u2MMF-QeNAYk0asXzkwXvfrdBm8dR4qYK_cBWHFZDByKOHXS9-tg0iuCcIyWQ5UyAnLEZJZz98XFomQtsICrm5y8B4HVAIEBLNYZ3HGcN_Pmr9amixB2rFc9geZdkce_WsTBOSs5rrHDhurLJSE8vk";
     AccessToken accesstoken = new AccessToken(accessToken,
             3600000 + System.currentTimeMillis());
 
     @Test
     public void testVPN() {
-        try {
-        File result = new File("results.html");
-        FileUtils.copyURLToFile(new URL("https://rateyourmusic.com/charts/top/album/2016"), result);
 
-        Document docFile = Jsoup.parse(result, "UTF-8", "http://example.com/");
-        Elements elementsFile = docFile.getElementsByClass("ui_stream_link_btn_spotify");
-        String artistFile = elementsFile.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString();
-        System.out.println("*** "+artistFile);
-        serviceApi.getRYM("https://rateyourmusic.com/charts/top/album/2016", getRYM_SEARCH_BOTH, 20);
+        try {
+//        File result = new File("results.html");
+//        FileUtils.copyURLToFile(new URL("https://rateyourmusic.com/charts/top/album/2016"), result);
+//
+//        Document docFile = Jsoup.parse(result, "UTF-8", "http://example.com/");
+//        Elements elementsFile = docFile.getElementsByClass("ui_stream_link_btn_spotify");
+//        String artistFile = elementsFile.get(4).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString();
+//        System.out.println("*** "+artistFile);
+            System.out.println();
+        serviceApi.getRYM("https://rateyourmusic.com/customchart?page=1&chart_type=top&type=album&year=alltime&genre_include=1&genres=Art+Rock&include_child_genres=t&include=both&limit=none&countries=", getRYM_SEARCH_BOTH, 5);
 
 
             //https://rateyourmusic.com/charts/top/album/2016

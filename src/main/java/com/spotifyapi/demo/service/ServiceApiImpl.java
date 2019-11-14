@@ -22,7 +22,6 @@ import com.spotifyapi.demo.helper.LoggingRequestInterceptor;
 import com.spotifyapi.demo.helper.TracksUtil;
 import com.spotifyapi.demo.helper.YoutubeUtil;
 import com.spotifyapi.demo.entity.user.User;
-import org.apache.commons.io.FileUtils;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -586,28 +585,30 @@ public class ServiceApiImpl implements ServiceApi {
             Map<Short, List<String>> mapOuter = new HashMap<>();
             Map<String, String> mapInnerArtist = new HashMap<>();
             Map<String, String> mapInnerAlbum = new HashMap<>();
-            List<String> artists=new ArrayList<>();
+
+            Set<String> artistsSet = new HashSet<>();
             List<String> albums=new ArrayList<>();
             int index = amountResults>elements.size() ? elements.size() : amountResults;
-
+            System.out.println();
             for (int i=0;i<index;i++){
-                int j = 0;
+                //int j = 0;
                 if (searchType==ServiceApi.getRYM_SEARCH_ARTIST || searchType==ServiceApi.getRYM_SEARCH_BOTH) {
-                    do {
-                        if (elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString().
-                                equalsIgnoreCase(elements.get(j).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString())) {
-
-                            //List<AlbumTracksItem> artistIds = getAlbumTrackIds(elements.get(i).attributes().get("href").split("album/")[1]);
-                            artists.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
-
-//                            mapInnerArtist.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(),
-//                                    artistIds.get(0).getArtists().get(0).getId());
-                            break;
-                        }
-                        j++;
-                    } while (j <= albums.size());
+//                    do {
+////                        if (elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString().
+////                                equalsIgnoreCase(elements.get(j).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString())) {
+////
+////                            //List<AlbumTracksItem> artistIds = getAlbumTrackIds(elements.get(i).attributes().get("href").split("album/")[1]);
+////                            //artists.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
+////                            artistsSet.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
+//////                            mapInnerArtist.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(),
+//////                                    artistIds.get(0).getArtists().get(0).getId());
+////                            break;
+////                        }
+//                        j++;
+//                        artistsSet.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
+//                    } while (j <= albums.size());
+                    artistsSet.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString());
                 }
-
                 albums.add(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString());
                 //mapInnerAlbum.put(elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(3).childNode(1).childNode(0).toString()+" - "+elements.get(i).parentNode().parentNode().parentNode().childNode(1).childNode(3).childNode(1).childNode(3).childNode(0).toString(), elements.get(i).attributes().get("href").split("album/")[1]);
 
@@ -616,12 +617,15 @@ public class ServiceApiImpl implements ServiceApi {
 //                ids.add(elements.get(i).attributes().get("href").split("album/")[1]);
             }
             System.out.println();
+            List<String> artists = new ArrayList<>();
             if (searchType==ServiceApi.getRYM_SEARCH_BOTH){
+                artists.addAll(artistsSet);
                 mapOuter.put(ServiceApi.getRYM_SEARCH_ARTIST, artists);
                 mapOuter.put(ServiceApi.getRYM_SEARCH_ALBUM, albums);
                 //mapRym = mapOuter;
                 return mapOuter;
             } else if (searchType==ServiceApi.getRYM_SEARCH_ARTIST){
+                artists.addAll(artistsSet);
                 mapOuter.put(ServiceApi.getRYM_SEARCH_ARTIST, artists);
                 //mapRym = mapOuter;
                 return mapOuter;
