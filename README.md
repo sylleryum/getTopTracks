@@ -16,7 +16,7 @@ Available at: http://gettoptracks.herokuapp.com/
 
 * Simply press in "Get started" to authorize this app to create playlists/add songs to your spotify<br>
 * This application let's you paste several artists and/or albums and then adds to the selected or created Spotify playlist
-* If there are songs duplicated between pasted artist and the album, it justs adds the song once (E.g if one pastes artist A and Album B from same artist and 2 of the 3 top songs from album and artist are the same, these 2 songs are added only once)
+* If there are songs duplicated between pasted artist and the album, it just adds the song once (E.g. if one pastes artist A and Album B from same artist and 2 of the 3 top songs from album and artist are the same, these 2 songs are added only once)
 * You can also paste a chart from Rate Your Music Website I.E: https://rateyourmusic.com/charts/top/album/2017 and the application will add the number of the best songs selected (see Issues/next steps)
 * You can either create a new playlist or add songs to an existing one<br>
 * One album/artist per line<br>
