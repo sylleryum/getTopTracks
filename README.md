@@ -1,7 +1,7 @@
 # getTopTracks
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/sylleryum/getTopTracks/blob/master/LICENSE.txt)
 
-Available at: gettoptracks.herokuapp.com/
+Available at: http://gettoptracks.herokuapp.com/
 Paste a list of artists and/or albums to get top tracks from them (full description below)
 
 <strike>You can also paste a chart link from RYM go get its artists/albums, I.E: https://rateyourmusic.com/charts/top/album/2017</strike>
@@ -17,6 +17,10 @@ Paste a list of artists and/or albums to get top tracks from them (full descript
 * Simply press in "Get started" to authorize this app to create playlists/add songs to your spotify<br>
 * This application let's you paste several artists and/or albums and then adds to the selected or created Spotify playlist
 * If there are songs duplicates between pasted artist and the album it justs adds the song once (E.g if one pastes artist A and Album B from artist A and 2 of the 3 top songs from album and artist are the same, these 2 songs are added only once)
+* You can also paste a chart from Rate Your Music Website I.E: https://rateyourmusic.com/charts/top/album/2017 and the application will add the number of the best songs selected (see Issues/next steps)
 * You can either create a new playlist or add songs to an existing one<br>
 * Paste song name (preferably in the format of artist name - song name)<br>
 * One song per line<br>
+
+## Issues/next steps
+* The feature of getting top songs from RYM is not available through http://gettoptracks.herokuapp.com/ as RYM blocks the access, to use the same you have to clone the repo and run it locally
