@@ -1,7 +1,7 @@
 # getTopTracks
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/sylleryum/getTopTracks/blob/master/LICENSE.txt)
 
-Available at: http://gettoptracks.herokuapp.com/ for demonstration purposes, please note that no authentication is implemented and therefore you should be running from your owne machine after cloning this repo
+Available at: http://gettoptracks.herokuapp.com/ for demonstration purposes, please note that no authentication is implemented and therefore you should be running from your own machine after cloning this repo.
 <br>Paste a list of artists and/or albums to get top tracks from them (full description below)
 
 <strike>You can also paste a chart link from RYM go get its artists/albums, I.E: https://rateyourmusic.com/charts/top/album/2017</strike>
