@@ -49,6 +49,7 @@
 
 
         function radioChecker() {
+            document.getElementById("main-playlist").classList.remove("block-style");
             if (document.getElementById("rNew").checked) {
                 document.getElementById("new-playlist").classList.remove("block-style");
                 document.getElementById("existing-playlist").classList.add("block-style");
@@ -58,34 +59,34 @@
             }
         }
 
-        function searchChecker(){
-
-            if ((document.getElementById("sString").checked) || (document.getElementById("sRymResults")!=null && document.getElementById("sRymResults").checked)) {
-                document.getElementById("string").classList.remove("block-style");
-                document.getElementById("rym").classList.add("block-style");
-
-                document.getElementById("main-select").classList.remove("block-style");
-                document.getElementById("main-playlist").classList.remove("block-style");
-
-                document.getElementById("submit-button").textContent = "Give me my playlist!";
-
-                document.getElementById("taArtist").placeholder = "Paste desired artists here";
-                document.getElementById("taAlbum").placeholder = "Paste desired albums here";
-            } else {
-                document.getElementById("rym").classList.remove("block-style");
-                document.getElementById("string").classList.add("block-style");
-
-                document.getElementById("main-select").classList.add("block-style");
-                document.getElementById("main-playlist").classList.add("block-style");
-
-                document.getElementById("submit-button").textContent = "Search RYM chart";
-                document.getElementById("submit-button").textContent = "Search RYM chart";
-
-                document.getElementById("taArtist").placeholder = "Paste ONE RYM chart URL (including HTTP://) to search for ARTISTS here";
-                document.getElementById("taAlbum").placeholder = "Paste ONE RYM chart URL (including HTTP://) to search for ALBUMS here";
-                //title=""
-            }
-        }
+        // function searchChecker(){
+        //
+        //     if ((document.getElementById("sString").checked) || (document.getElementById("sRymResults")!=null && document.getElementById("sRymResults").checked)) {
+        //         document.getElementById("string").classList.remove("block-style");
+        //         document.getElementById("rym").classList.add("block-style");
+        //
+        //         document.getElementById("main-select").classList.remove("block-style");
+        //         document.getElementById("main-playlist").classList.remove("block-style");
+        //
+        //         document.getElementById("submit-button").textContent = "Give me my playlist!";
+        //
+        //         document.getElementById("taArtist").placeholder = "Paste desired artists here";
+        //         document.getElementById("taAlbum").placeholder = "Paste desired albums here";
+        //     } else {
+        //         document.getElementById("rym").classList.remove("block-style");
+        //         document.getElementById("string").classList.add("block-style");
+        //
+        //         document.getElementById("main-select").classList.add("block-style");
+        //         document.getElementById("main-playlist").classList.add("block-style");
+        //
+        //         document.getElementById("submit-button").textContent = "Search RYM chart";
+        //         document.getElementById("submit-button").textContent = "Search RYM chart";
+        //
+        //         document.getElementById("taArtist").placeholder = "Paste ONE RYM chart URL (including HTTP://) to search for ARTISTS here";
+        //         document.getElementById("taAlbum").placeholder = "Paste ONE RYM chart URL (including HTTP://) to search for ALBUMS here";
+        //         //title=""
+        //     }
+        // }
 
         function validation() {
             var errors = '';
@@ -152,18 +153,18 @@
             <div class="h-80 col-md-10 bg-4 text-1 rounded-lg pl-4 pr-4 pt-2 overflow-auto block-style"
                  id="main-window">
 
-                <div class="row pb-2 justify-content-center">
-                    <c:if test="${(rymArtists!=null) || (rymAlbums!=null)}">
-                        <label class="font-weight-bold"><input type="radio" id="sRymResults" name="searchRadio" value="3"
-                                      onchange="searchChecker()">Choose from RYM results&nbsp;retrieved&nbsp;&nbsp;</label>
-                    </c:if>
-                    <label><input type="radio" id="sString" name="searchRadio" value="1"
-                                  onchange="searchChecker()">Search Artists or/and Albums&nbsp;&nbsp;</label>
-                    <label><input type="radio" id="sRym" name="searchRadio" value="2"
-                                  onchange="searchChecker()">Search rateyourmusic.com charts&nbsp;&nbsp;</label>
-                </div>
+<%--                <div class="row pb-2 justify-content-center">--%>
+<%--                    <c:if test="${(rymArtists!=null) || (rymAlbums!=null)}">--%>
+<%--                        <label class="font-weight-bold"><input type="radio" id="sRymResults" name="searchRadio" value="3"--%>
+<%--                                      onchange="searchChecker()">Choose from RYM results&nbsp;retrieved&nbsp;&nbsp;</label>--%>
+<%--                    </c:if>--%>
+<%--                    <label><input type="radio" id="sString" name="searchRadio" value="1"--%>
+<%--                                  onchange="searchChecker()">Search Artists or/and Albums&nbsp;&nbsp;</label>--%>
+<%--                    <label><input type="radio" id="sRym" name="searchRadio" value="2"--%>
+<%--                                  onchange="searchChecker()">Search rateyourmusic.com charts&nbsp;&nbsp;</label>--%>
+<%--                </div>--%>
 
-                <div id="main-select" class="block-style row main-select pb-1 justify-content-center">
+                <div id="main-select" class="row main-select pb-1 justify-content-center">
                     <label><input type="radio" id="rNew" name="playlistRadio" value="new"
                                   onchange="radioChecker()">New
                         playlist&nbsp;&nbsp;&nbsp;</label>
@@ -205,7 +206,7 @@
                     Search up to what position from chart:&nbsp;&nbsp;<input type="number" name="amountChart" id="amountChart"
                                                                             class="rounded-lg border-0 bg-5 text-1" value="3" min="1" max="40" style="width: 3em;">
                 </div>
-                <div id="string" class="block-style row track-amount pb-2 justify-content-center text-center">
+                <div id="string" class="row track-amount pb-2 justify-content-center text-center">
                     <label><input type="radio" id="rAmount11" name="amountRadio" value="1" onchange="">1 track&nbsp;&nbsp;&nbsp;</label>
                     <label><input type="radio" id="rAmount12" name="amountRadio" value="2" onchange="">2 tracks&nbsp;&nbsp;&nbsp;</label>
                     <label><input type="radio" id="rAmount13" name="amountRadio" value="3" checked onchange="">3 tracks&nbsp;&nbsp;&nbsp;</label>

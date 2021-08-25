@@ -4,6 +4,7 @@ package com.spotifyapi.demo.controller;
 import com.spotifyapi.demo.entity.playlists.PlaylistItem;
 import com.spotifyapi.demo.service.ServiceApi;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Controller
+@Scope("session")
 public class TheController {
 
     @Autowired
@@ -92,7 +94,6 @@ public class TheController {
                               @RequestParam(value = "playlistName", required = false) String playlistName,
                               @RequestParam(value = "selectPlaylist", required = false) String selectPlaylist,
                               @RequestParam(value = "playlistRadio", required = false) String playlistRadio,
-                              @RequestParam(value = "searchRadio") Integer searchRadio,
                               @RequestParam(value = "amountRadio", required = false) Integer amountRadio,
                               @RequestParam(value = "amountChart", required = false) Integer amountChart,
                               Model theModel) {
@@ -125,58 +126,60 @@ public class TheController {
 //        }
 
         //Search rateyourmusic.com charts
-        if (searchRadio == 2) {
-            try {
-                if (artistsToFind != null && albumsToFind != null) {
-                    mapRym = serviceApi.getRYM(artistsToFind.get(0), ServiceApi.getRYM_SEARCH_BOTH, amountChart);
-                    System.out.println();
-//                    ArrayList<String> listArtist = new ArrayList<String>(mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).keySet());
-//                    ArrayList<String> listAlbum = new ArrayList<String>(mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).keySet());
-                    System.out.println();
-                    theModel.addAttribute("rymArtists", mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST));
-                    theModel.addAttribute("rymAlbums", mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM));
-                    theModel.addAttribute("playlists", listPlaylist);
-                    return "home";
-
-                } else if (artistsToFind != null && albumsToFind == null) {
-                    mapRym = serviceApi.getRYM(artistsToFind.get(0), ServiceApi.getRYM_SEARCH_ARTIST, amountChart);
-                    //ArrayList<String> listArtist = new ArrayList<>(mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).keySet());
-                    System.out.println();
-                    theModel.addAttribute("rymArtists", mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST));
-                    theModel.addAttribute("playlists", listPlaylist);
-                    return "home";
-                } else if (artistsToFind == null && albumsToFind != null) {
-                    mapRym = serviceApi.getRYM(albumsToFind.get(0), ServiceApi.getRYM_SEARCH_ALBUM, amountChart);
-                    //ArrayList<String> listAlbum = new ArrayList<>(mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).keySet());
-                    System.out.println();
-                    theModel.addAttribute("rymAlbums", mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM));
-                    theModel.addAttribute("playlists", listPlaylist);
-                    return "home";
-                }
-            } catch (Exception e) {
-                theModel.addAttribute("rymError", true);
-                System.out.println();
-                return "home";
-            }
-
-        }
+//        if (searchRadio == 2) {
+//            try {
+//                if (artistsToFind != null && albumsToFind != null) {
+//                    mapRym = serviceApi.getRYM(artistsToFind.get(0), ServiceApi.getRYM_SEARCH_BOTH, amountChart);
+//                    System.out.println();
+////                    ArrayList<String> listArtist = new ArrayList<String>(mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).keySet());
+////                    ArrayList<String> listAlbum = new ArrayList<String>(mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).keySet());
+//                    System.out.println();
+//                    theModel.addAttribute("rymArtists", mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST));
+//                    theModel.addAttribute("rymAlbums", mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM));
+//                    theModel.addAttribute("playlists", listPlaylist);
+//                    return "home";
+//
+//                } else if (artistsToFind != null && albumsToFind == null) {
+//                    mapRym = serviceApi.getRYM(artistsToFind.get(0), ServiceApi.getRYM_SEARCH_ARTIST, amountChart);
+//                    //ArrayList<String> listArtist = new ArrayList<>(mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST).keySet());
+//                    System.out.println();
+//                    theModel.addAttribute("rymArtists", mapRym.get(ServiceApi.getRYM_SEARCH_ARTIST));
+//                    theModel.addAttribute("playlists", listPlaylist);
+//                    return "home";
+//                } else if (artistsToFind == null && albumsToFind != null) {
+//                    mapRym = serviceApi.getRYM(albumsToFind.get(0), ServiceApi.getRYM_SEARCH_ALBUM, amountChart);
+//                    //ArrayList<String> listAlbum = new ArrayList<>(mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM).keySet());
+//                    System.out.println();
+//                    theModel.addAttribute("rymAlbums", mapRym.get(ServiceApi.getRYM_SEARCH_ALBUM));
+//                    theModel.addAttribute("playlists", listPlaylist);
+//                    return "home";
+//                }
+//            } catch (Exception e) {
+//                theModel.addAttribute("rymError", true);
+//                System.out.println();
+//                return "home";
+//            }
+//
+//        }
 
         Map<Integer, Map<Boolean, List<String>>> mapReturn;
         if (playlistRadio.equalsIgnoreCase("existing")) {
-            if (searchRadio==3){
-                mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
-            } else {
-                mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
-            }
+            mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
+//            if (searchRadio==3){
+//                mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
+//            } else {
+//                mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
+//            }
         } else {
             PlaylistItem playlist = serviceApi.createPlaylist(playlistName);
             listPlaylist = serviceApi.getPlaylists();
             if (playlist != null) {
-                if (searchRadio==3){
-                    mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
-                } else {
-                    mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, playlist.getId(), amountRadio, false);
-                }
+                mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
+//                if (searchRadio==3){
+//                    mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, selectPlaylist, amountRadio, false);
+//                } else {
+//                    mapReturn = serviceApi.submitAddAllTracks(albumsToFind, artistsToFind, playlist.getId(), amountRadio, false);
+//                }
 
             } else {
                 mapReturn = null;
