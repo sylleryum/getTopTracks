@@ -22,4 +22,4 @@ Available at: http://gettoptracks.herokuapp.com/
 * One album/artist per line<br>
 
 ## Issues/next steps
-* The feature of getting top songs from RYM is not available through http://gettoptracks.herokuapp.com/ as RYM blocks the access, to use the same you have to clone the repo and run it locally
+* The feature of getting top songs from RYM is not available <strike>through http://gettoptracks.herokuapp.com/ as RYM blocks the access, to use the same you have to clone the repo and run it locally </strike>
